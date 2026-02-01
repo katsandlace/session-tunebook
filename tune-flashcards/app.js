@@ -152,6 +152,9 @@ function endSession() {
     document.getElementById('notation').style.display = 'none';
     document.getElementById('tune-name').style.display = 'none';
     document.getElementById('warning').style.display = 'none';
+   document.getElementById('last-tune').style.display = 'none';
+   document.getElementById('tune-author').style.display = 'none';
+
   
     const resultsEl = document.getElementById('results');
     resultsEl.style.display = 'block';
@@ -231,3 +234,4 @@ fetch('tunes.json')
 
     document.addEventListener('click', handleDocumentClick);
   });
+
