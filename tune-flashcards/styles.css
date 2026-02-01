@@ -9,6 +9,15 @@ h1 {
     margin-bottom: 10px;
 }
 
+.view {
+    display: none;
+  }
+  
+  .view.active {
+    display: block;
+  }
+  
+
 #warning {
     color: #b45309;
     font-weight: bold;

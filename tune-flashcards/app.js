@@ -10,9 +10,14 @@ const BARS_TO_SHOW = 4;
 
 const DEBUG = false;
 
-/* -----------------------------
-   Utility: shuffle
------------------------------- */
+function showView(viewId) {
+    document.querySelectorAll('.view')
+        .forEach(v => v.classList.remove('active'));
+
+    document.getElementById(viewId + '-view')
+        .classList.add('active');
+}
+
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -21,40 +26,38 @@ function shuffle(array) {
   return array;
 }
 
-/* -----------------------------
-   Utility: first N bars
------------------------------- */
-function firstNBars(abc, barsToShow) {
-    const lines = abc.split('\n');
+function firstNBars(abc, bars = 2) {
+    const lines = abc.split("\n");
 
     const header = [];
     const music = [];
 
     for (const line of lines) {
-        if (line.includes('|')) {
-            music.push(line);
+        if (line.includes("|")) {
+            music.push(
+                line
+                    .replace(/\|:/g, "|")
+                    .replace(/:\|/g, "|")
+            );
         } else {
             header.push(line);
         }
     }
 
-    // Flatten music and strip repeats / endings
-    let musicText = music.join(' ')
-        .replace(/\|\:/g, '|')
-        .replace(/\:\|/g, '|')
-        .replace(/\|1/g, '|')
-        .replace(/\|2/g, '|');
+    if (music.length === 0) return abc;
 
-    const bars = musicText.split('|').slice(0, barsToShow + 1);
+    const combinedMusic = music.join(" ");
+    const barParts = combinedMusic.split("|");
 
-    return [...header, bars.join('|')].join('\n');
+    const shortMusic =
+        barParts.slice(0, bars + 1).join("|") + "|";
+
+    return [...header, shortMusic].join("\n");
 }
 
 
 
-/* -----------------------------
-   Render tune
------------------------------- */
+
 function showTune() {
   const tune = tunes[currentIndex];
 
@@ -111,9 +114,6 @@ const authorEl = document.getElementById('tune-author');
   });
 }
 
-/* -----------------------------
-   Advance (keep)
------------------------------- */
 function nextTune() {
   const now = Date.now();
   if (now - lastClick < 200) return;
@@ -131,53 +131,34 @@ function nextTune() {
   showTune();
 }
 
-/* -----------------------------
-   End session
------------------------------- */
 function endSession() {
     const tune = tunes[currentIndex];
-  
-    // If this tune hasn't been classified yet, keep it
+
     if (
-      tune &&
-      !keptTunes.includes(tune) &&
-      !skippedTunes.includes(tune)
+        tune &&
+        !keptTunes.includes(tune) &&
+        !skippedTunes.includes(tune)
     ) {
-      keptTunes.push(tune);
+        keptTunes.push(tune);
     }
-  
+
     document.removeEventListener('click', handleDocumentClick);
-  
-    document.getElementById('controls').style.display = 'none';
-    document.getElementById('notation').style.display = 'none';
-    document.getElementById('tune-name').style.display = 'none';
-    document.getElementById('warning').style.display = 'none';
-   document.getElementById('last-tune').style.display = 'none';
-   document.getElementById('tune-author').style.display = 'none';
+
+    showView('end');
+
+    document.getElementById('export').value =
+        keptTunes.map(t => t.canonical_name).join('\n');
+}
 
   
-    const resultsEl = document.getElementById('results');
-    resultsEl.style.display = 'block';
-  
-    const exportEl = document.getElementById('export');
-    exportEl.value = keptTunes
-      .map(t => t.canonical_name)
-      .join('\n');
-  }
-  
 
-/* -----------------------------
-   Click handling
------------------------------- */
 function handleDocumentClick(e) {
   if (e.target.closest('button')) return;
   if (e.target.closest('#abc-debug')) return;
   nextTune();
 }
 
-/* -----------------------------
-   Buttons
------------------------------- */
+
 document.getElementById('skip-btn')
   .addEventListener('click', (e) => {
     e.stopPropagation();
@@ -230,8 +211,8 @@ fetch('tunes.json')
     skippedTunes = [];
 
     tunes = shuffle(data);
-    showTune();
+    showView('play');
+    showTune();;
 
     document.addEventListener('click', handleDocumentClick);
   });
-

@@ -21,11 +21,7 @@
     button {
       padding: 0.5rem 1rem;
       font-size: 1rem;
-    }
-    pre {
-      background: #f6f6f6;
-      padding: 1rem;
-      white-space: pre-wrap;
+      margin-right: 0.5rem;
     }
   </style>
 </head>
@@ -63,9 +59,26 @@
 <button id="convert">Convert</button>
 
 <h2>JSON output</h2>
-<pre id="output"></pre>
+<textarea id="output" readonly></textarea>
+
+<button id="copy-json">Copy JSON to clipboard</button>
 
 <script>
+const tuneIdInput = document.getElementById("tune-id");
+const settingIdInput = document.getElementById("setting-id");
+
+let settingIdManuallyEdited = false;
+
+settingIdInput.addEventListener("input", () => {
+  settingIdManuallyEdited = true;
+});
+
+tuneIdInput.addEventListener("input", () => {
+  if (!settingIdManuallyEdited) {
+    settingIdInput.value = tuneIdInput.value.trim();
+  }
+});
+
 function extractField(lines, prefix) {
   const line = lines.find(l => l.startsWith(prefix));
   return line ? line.slice(2).trim() : "";
@@ -77,8 +90,8 @@ document.getElementById("convert").addEventListener("click", () => {
 
   const lines = abcRaw.split(/\r?\n/);
 
-  const tuneId = document.getElementById("tune-id").value;
-  const settingId = document.getElementById("setting-id").value;
+  const tuneId = tuneIdInput.value.trim();
+  const settingId = settingIdInput.value.trim();
 
   const tune = {
     id: tuneId && settingId
@@ -96,8 +109,14 @@ document.getElementById("convert").addEventListener("click", () => {
     abc: lines.join("\\n")
   };
 
-  document.getElementById("output").textContent =
+  document.getElementById("output").value =
     JSON.stringify(tune, null, 2);
+});
+
+document.getElementById("copy-json").addEventListener("click", () => {
+  const jsonText = document.getElementById("output").value;
+  if (!jsonText) return;
+  navigator.clipboard.writeText(jsonText);
 });
 </script>
 
