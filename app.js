@@ -26,31 +26,35 @@ function shuffle(array) {
   return array;
 }
 
-function firstNBars(abc, barsToShow) {
-    const lines = abc.split('\n');
+function firstNBars(abc, bars = 2) {
+    const lines = abc.split("\n");
 
     const header = [];
     const music = [];
 
     for (const line of lines) {
-        if (line.includes('|')) {
-            music.push(line);
+        if (line.includes("|")) {
+            music.push(
+                line
+                    .replace(/\|:/g, "|")
+                    .replace(/:\|/g, "|")
+            );
         } else {
             header.push(line);
         }
     }
 
-    // Flatten music and strip repeats / endings
-    let musicText = music.join(' ')
-        .replace(/\|\:/g, '|')
-        .replace(/\:\|/g, '|')
-        .replace(/\|1/g, '|')
-        .replace(/\|2/g, '|');
+    if (music.length === 0) return abc;
 
-    const bars = musicText.split('|').slice(0, barsToShow + 1);
+    const combinedMusic = music.join(" ");
+    const barParts = combinedMusic.split("|");
 
-    return [...header, bars.join('|')].join('\n');
+    const shortMusic =
+        barParts.slice(0, bars + 1).join("|") + "|";
+
+    return [...header, shortMusic].join("\n");
 }
+
 
 
 
