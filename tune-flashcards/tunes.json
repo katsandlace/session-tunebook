@@ -31,7 +31,7 @@
         "abc":"X:1\nT:The Rose Tree\nM:6/8\nK:Gmaj\n|: GAG BGE|DGB AGA:|"
     },
     {
-        "id": "ts-3146-3146",
+        "id": "4",
         "canonical_name": "The Hawk",
         "type": "hornpipe",
         "key": "Dmaj",
@@ -42,5 +42,44 @@
         "thesession_tune_id": 3146,
         "thesession_setting_id": 3146,
         "abc": "X: 1\\nT: The Hawk\\nR: hornpipe\\nM: 4/4\\nL: 1/8\\nK: Dmaj\\n(3ABc|:d2 fd Adfe|dfeg fagf|e2 ge Begf|edcB ABcA|\\nd2 fd Adfe|dfeg fagf|edef gABc|1 dAfe d2 (3ABc:|2 dAfe d2 cB||\\nAafd Agec|Agec dcBA|BAcB dced|fegf e2 ef|\\ngafg efde|caBg AfGe|cdef gABc|1 dAfe d2 cB:|2 dAfe d2 (3ABc||"
+      },
+      {
+        "id": "5",
+        "canonical_name": "Whitefriars",
+        "type": "hornpipe",
+        "key": "Gmaj",
+        "region": "England",
+        "subregion": null,
+        "author": null,
+        "source": "thesession.org",
+        "thesession_tune_id": 8218,
+        "thesession_setting_id": 30709,
+        "abc": "X: 2\\nT: Whitefriars\\nR: hornpipe\\nM: 4/4\\nL: 1/8\\nK: Gmaj\\nAB|:cBAG FGAF|GABG A2 DD|F2D2 FGAB|\\nA3 B cBAG FGAF|GABG ABcd|B2 GF G2 AB:|\\n|:cBcd e4|g4 agfe|defd ef ge|a2 A2 A2 AB|\\ncBcd e4|g4 agfe|defd AB cd|B2 G2 G2 AB:|"
+      },
+      {
+        "id": "6",
+        "canonical_name": "The Flowers Of Edinburgh",
+        "type": "reel",
+        "key": "Gmaj",
+        "region": "Scotland",
+        "subregion": null,
+        "author": null,
+        "source": "thesession.org",
+        "thesession_tune_id": 2549,
+        "thesession_setting_id": 2549,
+        "abc": "X: 1\\nT: The Flowers Of Edinburgh\\nR: reel\\nM: 4/4\\nL: 1/8\\nK: Gmaj\\n|:GE|D2DE G2GA|BGBd cBAG|FGFE DEFG|AFdF E2GE|\\nD2DE G2GA|BGBd efge|dcBA GFGA|B2 G2 G2:|\\n|:d2|g2g2 gbag|f2f2 fagf|edef gfed|B2e2 e2ge|\\ndBGB d2 d2|edef g2fe|dcBA GFGA|B2 G2 G2:|"
+      },
+      {
+        "id": "7",
+        "canonical_name": "Midnight On The Water",
+        "type": "waltz",
+        "key": "Dmaj",
+        "region": "unknown",
+        "subregion": null,
+        "author": "Luke Tomasson",
+        "source": "thesession.org",
+        "thesession_tune_id": 5020,
+        "thesession_setting_id": 5020,
+        "abc": "X: 1\\nT: Midnight On The Water\\nR: waltz\\nM: 3/4\\nL: 1/8\\nK: Dmaj\\nDE|:\"D\"F2 F2 FE|\"D\" F2 F2 FE|\"D\" F A3 AB|\"D\" AFED DE|\\n\"D\"F2 d2 \"G\"B2|\"D\" A3 F DE|\"A\" F2 AF EF|1 \"D\" D4 DE:|2 \"D\" D4 (3ABc||\\n|:\"D\"d6|\"D\" dc BA Bc|\"D\" d3 B AF|\"D\" D4 d2|\\n\"Em\"e e3 f2|\"Em\" e2 d2 e2|\"Bm\"f a3 f2|\"Bm\"gfed Bc|\\n\"G\"d3 cde|\"G\" dc BA Bc|\"D\" d3 B AF|\"D\" D4 DE|\\n\"D\"F2 d2 \"G\"B2|\"D\" A3 F DE|\"A\" F2 AF EF|\"D\" D4||"
       }
 ]
