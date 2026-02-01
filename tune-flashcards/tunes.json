@@ -94,5 +94,18 @@
         "thesession_tune_id": 2903,
         "thesession_setting_id": 2903,
         "abc": "X: 1\\nT: Salmon Tails Up The Water\\nR: polka\\nM: 2/4\\nL: 1/8\\nK: Gmaj\\n|:GE DE|GG/G/ GA|Bd AB/A/|GE D>E|\\nGE DE|GG/G/ GA|Bd AB/A/|1 (G2 G2):|2 (G2 G>)A||\\n(3Bdd d>B|(3cee e>e|dB AB/A/|GE D2|\\nBd d>B|ce e>f|gf ed|e/f/g BA|\\n(3Bdd d>B|(3cee e>e|dB AB/A/|GE D2|\\nGE DE|GG/G/ GA|Bd/d/ AB/A/|cc c2||"
+      },
+      {
+        "id": "T-9",
+        "canonical_name": "The Shining Pool",
+        "type": "hornpipe",
+        "key": "Dmaj",
+        "region": "England",
+        "subregion": "Northumberland",
+        "author": "Willy Taylor",
+        "source": "thesession.org",
+        "thesession_tune_id": 4593,
+        "thesession_setting_id": 4593,
+        "abc": "X: 1\\nT: The Shining Pool\\nR: hornpipe\\nM: 4/4\\nL: 1/8\\nK: Dmaj\\n|:(3ABc|(3def (3edc dBAG|FAEA D2FG|Adcd Bdgf|(3efe (3dcB Agfe|\\n(3def (3edc dBAG|FAEA D2FG|Adcd Bded|(3cBA (3gfe d2:|\\nfg|afdf ecAG|FAdf afdc|BggB Affd|(3efe (3dcB A2fg|\\nafdf ecAG|FAdf afdc|BggB Affd|(3cBA (3gfe d2fg|\\nafdf ecAG|FAdf afdc|BggB Affd|(3efe (3dcB A2 (3ABc|\\n(3def (3edc dBAG|FAEA D2FG|Adcd Bded|(3cBA (3gfe d2||"
       }
 ]
