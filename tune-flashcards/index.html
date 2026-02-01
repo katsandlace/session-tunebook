@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Tune Flash Cards</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<h1 id="tune-name"></h1>
+
+	<div id="warning" syle="display:none;">
+		! Last tune coming up
+	</div>
+
+	<div id="last-tune" style="display:none;">
+		Last tune
+	</div>
+
+	<div id="notation"></div>
+	<pre id="abc-debug" style="display:none;"></pre>
+	<div id="tune-author"></div>
+
+	<div id="controls">
+		<button id="skip-btn">Skip</button>
+		<button id="end-btn">End</button>
+	</div>
+
+	<div id="results" style="display:none;">
+		<h2>End of deck</h2>
+		<p>Refresh the page to start a new session.</p>
+
+		<h3>Tunes played</h3>
+		<textarea id="export" rows="12"></textarea>
+	</div>
+
+	<script src="lib/abcjs-basic-min.js"></script>
+	<script src="app.js"></script>
+</body>
+</html>

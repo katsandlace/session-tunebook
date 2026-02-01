@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ABC → tunes.json helper</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 2rem;
+    }
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      font-family: monospace;
+      margin-bottom: 1rem;
+    }
+    input {
+      margin-right: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    pre {
+      background: #f6f6f6;
+      padding: 1rem;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+<h1>ABC → tunes.json</h1>
+
+<p>Paste ABC from thesession.org:</p>
+<textarea id="abc-input"></textarea>
+
+<p>
+  Region:
+  <input id="region" value="England">
+  Subregion:
+  <input id="subregion" placeholder="e.g. Northumberland">
+</p>
+
+<p>
+  Author / composer:
+  <input id="author" placeholder="e.g. trad., Willy Taylor">
+</p>
+
+<p>
+  Source:
+  <input id="source" value="thesession.org">
+</p>
+
+<p>
+  TheSession tune ID:
+  <input id="tune-id" placeholder="e.g. 12345">
+  Setting ID:
+  <input id="setting-id" placeholder="e.g. 67890">
+</p>
+
+<button id="convert">Convert</button>
+
+<h2>JSON output</h2>
+<pre id="output"></pre>
+
+<script>
+function extractField(lines, prefix) {
+  const line = lines.find(l => l.startsWith(prefix));
+  return line ? line.slice(2).trim() : "";
+}
+
+document.getElementById("convert").addEventListener("click", () => {
+  const abcRaw = document.getElementById("abc-input").value.trim();
+  if (!abcRaw) return;
+
+  const lines = abcRaw.split(/\r?\n/);
+
+  const tuneId = document.getElementById("tune-id").value;
+  const settingId = document.getElementById("setting-id").value;
+
+  const tune = {
+    id: tuneId && settingId
+      ? `ts-${tuneId}-${settingId}`
+      : "ts-UNKNOWN",
+    canonical_name: extractField(lines, "T:"),
+    type: extractField(lines, "R:"),
+    key: extractField(lines, "K:"),
+    region: document.getElementById("region").value || "unknown",
+    subregion: document.getElementById("subregion").value || null,
+    author: document.getElementById("author").value || null,
+    source: document.getElementById("source").value || null,
+    thesession_tune_id: tuneId ? Number(tuneId) : null,
+    thesession_setting_id: settingId ? Number(settingId) : null,
+    abc: lines.join("\\n")
+  };
+
+  document.getElementById("output").textContent =
+    JSON.stringify(tune, null, 2);
+});
+</script>
+
+</body>
+</html>
