@@ -1,218 +1,340 @@
-let tunes = [];
-let currentIndex = 0;
+const COUNTRIES = [
+    { key: 'england', label: 'England', value: 'england', defaultPct: 90 },
+    { key: 'ireland', label: 'Ireland', value: 'ireland', defaultPct: 5 },
+    { key: 'scotland', label: 'Scotland', value: 'scotland', defaultPct: 3 },
+    { key: 'other', label: 'Other', value: null, defaultPct: 2 }
+  ];
+  
+  const BARS_TO_SHOW = 4;
+  const DEBUG = false;
 
-let keptTunes = [];
-let skippedTunes = [];
-
-let lastClick = 0;
-
-const BARS_TO_SHOW = 4;
-
-const DEBUG = false;
-
-function showView(viewId) {
-    document.querySelectorAll('.view')
-        .forEach(v => v.classList.remove('active'));
-
-    document.getElementById(viewId + '-view')
-        .classList.add('active');
-}
-
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
+  let showFullTune = false;
+  
+  let allTunes = [];
+  
+  const session = {
+    config: {
+      numTunes: 20,
+      countryWeights: {}
+    },
+    standards: new Set(),
+    accepted: new Set(),
+    nominated: new Set(),
+    excluded: new Set(),
+    runtime: {
+      deck: [],
+      index: 0,
+      kept: [],
+      skipped: [],
+      lastClick: 0
+    }
+  };
+  
+  function buildCountryInputs() {
+    const container = document.getElementById('country-inputs');
+    container.replaceChildren();
+  
+    COUNTRIES.forEach(c => {
+      const row = document.createElement('div');
+  
+      const label = document.createElement('label');
+      label.textContent = c.label;
+      label.setAttribute('for', `pct-${c.key}`);
+  
+      const wrap = document.createElement('div');
+      wrap.className = 'percent-input';
+  
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = 0;
+      input.max = 100;
+      input.id = `pct-${c.key}`;
+      input.value = c.defaultPct;
+  
+      const suffix = document.createElement('span');
+      suffix.textContent = '%';
+      suffix.className = 'suffix';
+  
+      wrap.appendChild(input);
+      wrap.appendChild(suffix);
+      row.appendChild(label);
+      row.appendChild(wrap);
+      container.appendChild(row);
+    });
   }
-  return array;
-}
-
-function firstNBars(abc, bars = 2) {
-    const lines = abc.split("\n");
-
+  
+  function showView(id) {
+    document.querySelectorAll('.view')
+      .forEach(v => v.classList.remove('active'));
+    document.getElementById(id + '-view')
+      .classList.add('active');
+  }
+  
+  function isPlayViewActive() {
+    return document.getElementById('play-view')
+      .classList.contains('active');
+  }
+  
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+  
+  function firstNBars(abc, bars) {
+    const lines = abc.split('\n');
     const header = [];
     const music = [];
-
-    for (const line of lines) {
-        if (line.includes("|")) {
-            music.push(
-                line
-                    .replace(/\|:/g, "|")
-                    .replace(/:\|/g, "|")
+  
+    lines.forEach(l => {
+      if (l.includes('|')) {
+        music.push(l.replace(/\|:/g, '|').replace(/:\|/g, '|'));
+      } else {
+        header.push(l);
+      }
+    });
+  
+    if (!music.length) return abc;
+  
+    const joined = music.join(' ');
+    const parts = joined.split('|');
+    const short = parts.slice(0, bars + 1).join('|') + '|';
+  
+    return [...header, short].join('\n');
+  }
+  
+  function normaliseWeights(weights) {
+    let total = Object.values(weights).reduce((a, b) => a + b, 0);
+  
+    while (total > 100) {
+      const maxKey = Object.keys(weights)
+        .reduce((a, b) => weights[a] >= weights[b] ? a : b);
+      weights[maxKey] -= 1;
+      total -= 1;
+    }
+  
+    return weights;
+  }
+  
+  function getEligibleTunes() {
+    return allTunes.filter(t => {
+      if (session.excluded.has(t.id)) return false;
+      if (session.nominated.has(t.id)) return false;
+      return true;
+    });
+  }
+  
+  function buildDeck() {
+    session.config.numTunes =
+      parseInt(document.getElementById('num-tunes').value, 10);
+  
+    COUNTRIES.forEach(c => {
+      session.config.countryWeights[c.key] =
+        parseInt(document.getElementById(`pct-${c.key}`).value, 10);
+    });
+  
+    normaliseWeights(session.config.countryWeights);
+  
+    const eligible = getEligibleTunes();
+    if (!eligible.length) {
+      session.runtime.deck = [];
+      return;
+    }
+  
+    const pools = {};
+    COUNTRIES.forEach(c => {
+      pools[c.key] = shuffle(
+        eligible.filter(t => {
+          const tc = (t.country || '').toLowerCase();
+          if (c.value === null) {
+            return !COUNTRIES.some(x =>
+              x.value && x.value === tc
             );
-        } else {
-            header.push(line);
-        }
+          }
+          return tc === c.value;
+        })
+      );
+    });
+  
+    const maxPossible =
+      Object.values(pools).reduce((a, p) => a + p.length, 0);
+  
+    const target =
+      Math.min(session.config.numTunes, maxPossible);
+  
+    let remaining = target;
+    const counts = {};
+  
+    COUNTRIES.forEach((c, i) => {
+      if (i === COUNTRIES.length - 1) {
+        counts[c.key] = remaining;
+      } else {
+        counts[c.key] =
+          Math.round(target * session.config.countryWeights[c.key] / 100);
+        remaining -= counts[c.key];
+      }
+    });
+  
+    let deck = COUNTRIES.flatMap(c =>
+      pools[c.key].slice(0, counts[c.key])
+    );
+  
+    if (deck.length < target) {
+      const used = new Set(deck.map(t => t.id));
+      const extras = eligible.filter(t => !used.has(t.id));
+      deck = deck.concat(extras.slice(0, target - deck.length));
     }
-
-    if (music.length === 0) return abc;
-
-    const combinedMusic = music.join(" ");
-    const barParts = combinedMusic.split("|");
-
-    const shortMusic =
-        barParts.slice(0, bars + 1).join("|") + "|";
-
-    return [...header, shortMusic].join("\n");
-}
-
-
-
-
-function showTune() {
-  const tune = tunes[currentIndex];
-
-  document.getElementById('tune-name').textContent =
-    tune.canonical_name;
-
-const authorEl = document.getElementById('tune-author');
-
-    if (tune.author) {
-        authorEl.textContent = `${tune.author}`;
-        authorEl.style.display = 'block';
+  
+    session.runtime.deck = shuffle(deck);
+  }
+  
+  function showTune() {
+    const t = session.runtime.deck[session.runtime.index];
+    if (!t) return;
+  
+    document.getElementById('tune-name').textContent =
+      t.canonical_name;
+  
+    const authorEl = document.getElementById('tune-author');
+    if (t.author) {
+      authorEl.textContent = t.author;
+      authorEl.style.display = 'block';
     } else {
-        authorEl.style.display = 'none';
+      authorEl.style.display = 'none';
     }
+  
+    document.getElementById('warning').style.display =
+      session.runtime.index === session.runtime.deck.length - 2
+        ? 'block' : 'none';
+  
+    document.getElementById('last-tune').style.display =
+      session.runtime.index === session.runtime.deck.length - 1
+        ? 'block' : 'none';
+  
+    const notation = document.getElementById('notation');
+    notation.replaceChildren();
+  
+    const normalisedAbc = t.abc.replace(/\\n/g, '\n');
+  
+    const renderedAbc = showFullTune
+      ? normalisedAbc
+      : firstNBars(normalisedAbc, BARS_TO_SHOW);
+  
+    const debugEl = document.getElementById('abc-debug');
+    debugEl.style.display = DEBUG ? 'block' : 'none';
+    if (DEBUG) debugEl.textContent = renderedAbc;
+  
+    ABCJS.renderAbc(notation, renderedAbc, {
+      staffwidth: 600,
+      suppressTitle: true,
+      responsive: 'resize'
+    });
 
-    const warningEl = document.getElementById('warning');
-    const lastTuneEl = document.getElementById('last-tune');
-    
-    warningEl.style.display = 'none';
-    lastTuneEl.style.display = 'none';
-    
-    if (currentIndex === tunes.length - 2) {
-        // Penultimate tune
-        warningEl.style.display = 'block';
-    }
-    
-    if (currentIndex === tunes.length - 1) {
-        // Final tune
-        lastTuneEl.style.display = 'block';
-    }
-    
-
-  const notationEl = document.getElementById('notation');
-  notationEl.replaceChildren();
-
-    const normalisedAbc = tune.abc.replace(/\\n/g, '\n');
-    const shortAbc = firstNBars(normalisedAbc, BARS_TO_SHOW);
-
-  const debugEl = document.getElementById('abc-debug');
-
-  if (DEBUG) {
-      debugEl.style.display = 'block';
-      debugEl.textContent = shortAbc;
-  } else {
-      debugEl.style.display = 'none';
+    updateFullButtonLabel();
   }
   
-
-
-  ABCJS.renderAbc(notationEl, shortAbc, {
-    staffwidth: 600,
-    suppressTitle: true,
-    responsive: "resize"
-  });
-}
-
-function nextTune() {
-  const now = Date.now();
-  if (now - lastClick < 200) return;
-  lastClick = now;
-
-  const tune = tunes[currentIndex];
-  keptTunes.push(tune);
-
-  if (currentIndex === tunes.length - 1) {
-    endSession();
-    return;
-  }
-
-  currentIndex += 1;
-  showTune();
-}
-
-function endSession() {
-    const tune = tunes[currentIndex];
-
-    if (
-        tune &&
-        !keptTunes.includes(tune) &&
-        !skippedTunes.includes(tune)
-    ) {
-        keptTunes.push(tune);
-    }
-
-    document.removeEventListener('click', handleDocumentClick);
-
-    showView('end');
-
-    document.getElementById('export').value =
-        keptTunes.map(t => t.canonical_name).join('\n');
-}
-
   
-
-function handleDocumentClick(e) {
-  if (e.target.closest('button')) return;
-  if (e.target.closest('#abc-debug')) return;
-  nextTune();
-}
-
-
-document.getElementById('skip-btn')
-  .addEventListener('click', (e) => {
-    e.stopPropagation();
-
-    const tune = tunes[currentIndex];
-    skippedTunes.push(tune);
-
-    if (currentIndex === tunes.length - 1) {
+  function nextTune() {
+    if (!isPlayViewActive()) return;
+  
+    const now = Date.now();
+    if (now - session.runtime.lastClick < 200) return;
+    session.runtime.lastClick = now;
+  
+    const t = session.runtime.deck[session.runtime.index];
+    session.runtime.kept.push(t);
+  
+    if (session.runtime.index === session.runtime.deck.length - 1) {
       endSession();
       return;
     }
+  
+    session.runtime.index += 1;
+    showFullTune = false;
+    showTune();
+  }
+  
+  function endSession() {
+    document.removeEventListener('click', handleDocumentClick);
+  
+    showView('end');
+  
+    document.getElementById('export').value =
+      session.runtime.kept.map(t => t.canonical_name).join('\n');
+  }
+  
+  function handleDocumentClick(e) {
+    if (!isPlayViewActive()) return;
+    if (e.target.closest('button')) return;
+    if (e.target.closest('#abc-debug')) return;
+    nextTune();
+  }
+  
+  document.getElementById('skip-btn')
+    .addEventListener('click', e => {
+      e.stopPropagation();
+      const t = session.runtime.deck[session.runtime.index];
+      session.runtime.skipped.push(t);
+  
+      if (session.runtime.index === session.runtime.deck.length - 1) {
+        endSession();
+        return;
+      }
+  
+      session.runtime.index += 1;
+      showTune();
+    });
 
-    currentIndex += 1;
+    document.getElementById('full-btn')
+    .addEventListener('click', e => {
+    e.stopPropagation();
+    showFullTune = !showFullTune;
     showTune();
   });
 
-document.getElementById('end-btn')
-  .addEventListener('click', (e) => {
-    e.stopPropagation();
-    endSession();
+    function updateFullButtonLabel() {
+    const btn = document.getElementById('full-btn');
+    if (!btn) return;
+    btn.textContent = showFullTune ? 'Hide full tune' : 'Show full tune';
+  }
+  
+
+  
+  document.getElementById('end-btn')
+    .addEventListener('click', e => {
+      e.stopPropagation();
+      endSession();
+    });
+  
+  document.addEventListener('keydown', e => {
+    if (!isPlayViewActive()) return;
+    if (e.code === 'Space' || e.code === 'ArrowRight') nextTune();
+    if (e.code === 'KeyS') document.getElementById('skip-btn').click();
+    if (e.code === 'KeyE') document.getElementById('end-btn').click();
   });
-
-  document.getElementById('abc-debug')
-  .addEventListener('click', e => e.stopPropagation());
-
-
-/* -----------------------------
-   Keyboard
------------------------------- */
-document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space' || e.code === 'ArrowRight') {
-    nextTune();
-  }
-  if (e.code === 'KeyS') {
-    document.getElementById('skip-btn').click();
-  }
-  if (e.code === 'KeyE') {
-    document.getElementById('end-btn').click();
-  }
-});
-
-/* -----------------------------
-   Load & start
------------------------------- */
-fetch('tunes.json')
-  .then(r => r.json())
-  .then(data => {
-    currentIndex = 0;
-    keptTunes = [];
-    skippedTunes = [];
-
-    tunes = shuffle(data);
-    showView('play');
-    showTune();;
-
-    document.addEventListener('click', handleDocumentClick);
-  });
+  
+  document.getElementById('start-btn')
+    .addEventListener('click', e => {
+      e.stopPropagation();
+  
+      session.runtime.index = 0;
+      session.runtime.kept = [];
+      session.runtime.skipped = [];
+  
+      buildDeck();
+      showView('play');
+      showTune();
+  
+      document.addEventListener('click', handleDocumentClick);
+    });
+  
+  fetch('tunes.json')
+    .then(r => r.json())
+    .then(data => {
+      allTunes = data;
+      buildCountryInputs();
+      showView('start');
+    });
+  
