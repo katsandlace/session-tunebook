@@ -33,10 +33,10 @@
 <textarea id="abc-input"></textarea>
 
 <p>
+  Country:
+  <input id="country" value="England">
   Region:
-  <input id="region" value="England">
-  Subregion:
-  <input id="subregion" placeholder="e.g. Northumberland">
+  <input id="region" placeholder="e.g. Northumberland">
 </p>
 
 <p>
@@ -100,8 +100,8 @@ document.getElementById("convert").addEventListener("click", () => {
     canonical_name: extractField(lines, "T:"),
     type: extractField(lines, "R:"),
     key: extractField(lines, "K:"),
-    region: document.getElementById("region").value || "unknown",
-    subregion: document.getElementById("subregion").value || null,
+    country: document.getElementById("country").value || "unknown",
+    region: document.getElementById("region").value || null,
     author: document.getElementById("author").value || null,
     source: document.getElementById("source").value || null,
     thesession_tune_id: tuneId ? Number(tuneId) : null,

@@ -3,56 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <title>Tune Flashcards</title>
-
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- PLAY VIEW -->
-  <div id="play-view" class="view active">
+  <div id="start-view" class="view active">
+    <h2>Start session</h2>
 
-    <div id="warning" style="display:none;">
-      Last tune coming up
-    </div>
+    <label>
+      Number of tunes:
+      <input type="number" id="num-tunes" value="20" min="1">
+    </label>
 
-    <div id="last-tune" style="display:none;">
-      Last tune
+    <h3>Country proportions</h3>
+
+    <div id="country-inputs"></div>
+
+    <div style="margin-top: 1em;">
+      <button id="start-btn">Start</button>
     </div>
+  </div>
+
+  <div id="play-view" class="view">
+    <div id="warning" style="display:none;">Last tune coming up</div>
+    <div id="last-tune" style="display:none;">Last tune</div>
 
     <h1 id="tune-name"></h1>
-
     <div id="notation"></div>
-
     <div id="tune-author"></div>
 
     <div id="controls">
       <button id="skip-btn">Skip</button>
+	  <button id="full-btn">Show full tune</button>
       <button id="end-btn">End session</button>
     </div>
 
     <pre id="abc-debug" style="display:none;"></pre>
-
   </div>
 
-  <!-- END VIEW -->
   <div id="end-view" class="view">
-
     <h2>Session finished</h2>
-
     <p>Tunes played (not skipped):</p>
-
-    <textarea
-      id="export"
-      rows="12"
-      cols="40"
-      readonly
-    ></textarea>
-
+    <textarea id="export" rows="12" cols="40" readonly></textarea>
   </div>
 
   <script src="lib/abcjs-basic-min.js"></script>
-
   <script src="app.js"></script>
-
 </body>
 </html>

@@ -12,11 +12,28 @@ h1 {
 .view {
     display: none;
   }
-  
-  .view.active {
-    display: block;
-  }
-  
+
+.view.active {
+display: block;
+}
+
+.percent-input {
+position: relative;
+display: inline-block;
+}
+
+.percent-input input {
+padding-right: 1.4em;
+}
+
+.percent-input .suffix {
+position: absolute;
+right: 0.4em;
+top: 50%;
+transform: translateY(-50%);
+pointer-events: none;
+opacity: 0.6;
+}  
 
 #warning {
     color: #b45309;
